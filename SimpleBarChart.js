@@ -181,7 +181,7 @@ class SimpleBarChart {
      */
     drawBars(maxHeight, spacing) {
         const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
-        const spaceWidth = (this.element.width-20) / this.data.length
+        const spaceWidth = (this.element.width-spacing) / this.data.length
         
 
         if (this.bars.length) {
