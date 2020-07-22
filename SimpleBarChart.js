@@ -34,6 +34,37 @@ function drawLabel(ctx, text, x, y, size='18px', font='sans-serif', color='black
 }
 
 
+class Bar {
+    /**
+     * Default constructor for Bar class
+     * @param {Number} x scaled x-value 
+     * @param {Number} y scaled y-value
+     * @param {Number} width scaled width
+     * @param {Number} height scaled height
+     */
+    constructor(x, y, width, height) {
+        this.x = x;
+        this.y = y;
+        this.width = width,
+        this.height = height
+
+        this.dpX = x / window.devicePixelRatio;
+        this.dpY = y / window.devicePixelRatio;
+        this.dpWidth = width / window.devicePixelRatio;
+        this.dpHeight = height / window.devicePixelRatio;
+    }
+
+    /**
+     * Helper method to tell if something is hovering Bar object
+     * @param {Number} x x-coordinate
+     * @param {Number} y y-coordinate
+     */
+    isHover(x,y){
+        return x >= this.dpX && x <= this.dpX + this.dpWidth && y >= this.dpY + this.dpHeight
+    }
+}
+
+
 class SimpleBarChart {
 
     /**
@@ -50,6 +81,7 @@ class SimpleBarChart {
         this.backgroundColor = backgroundColor;
         this.element.style.backgroundColor = this.backgroundColor;
         this.gridColor = gridColor;
+        this.bars = [];
     }
 
     /**
@@ -85,24 +117,50 @@ class SimpleBarChart {
      * @param {Number} maxHeight maximum height a bar can be
      * @param {Number} spacing Spacing desired between bars
      */
-    bars(maxHeight, spacing) {
+    drawBars(maxHeight, spacing) {
         const maxValue = Math.max(...this.data);//this gives the proportion for the height
         const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
         const spaceWidth = this.element.width / this.data.length
+        
         for(let x = 0; x < this.data.length; x++) {
+
+            const xStart = x * spaceWidth + (spacing / 2)
+            const height = - (this.data[x]/maxValue) * maxHeight
             this.ctx.fillRect(
-                x * spaceWidth + (spacing / 2),
+                xStart,
                 this.element.height,
                 barWidth,
-                - (this.data[x]/maxValue) * maxHeight
+                height
+            )
+            this.bars.push(
+                new Bar(xStart, this.element.height, barWidth, height)
             )
         }
 
     }
 
+    /**
+     * Method to perform operations when mouse hovers over a bar
+     * @param {Object} e event object 
+     */
+    mouseDidMove (e) {
+        const rect = this.element.getBoundingClientRect()
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        for(let bar of this.bars) {
+            if (bar.isHover(x,y)) {
+                this.element.style.cursor = 'pointer';
+                break
+            } else {
+                this.element.style.cursor = '';
+            }
+        }
+    }
+
     draw () {
         this.scaleCanvas();
         this.grid()
-        this.bars(this.element.height - 100, 40)
+        this.drawBars(this.element.height - 100, 40)
+        this.element.onmousemove = e => this.mouseDidMove(e);
     }
 }
