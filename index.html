@@ -6,25 +6,34 @@
     <title>Document</title>
     <script src="./SimpleBarChart.js"></script>
 </head>
-<body style="font-family: sans-serif; margin: 0; padding: 0; display: flex; flex-direction: row; height: 100vh; width: 100vw; justify-content: center; align-items: center;">
-    <div style="display: flex; flex-direction: column; padding: 10px; justify-content: center; align-items: center; text-align: center;">
+<body style="background-color: lightgray; font-family: sans-serif; margin: 0; padding: 0; display: flex; flex-direction: row; height: 100vh; width: 100vw; justify-content: center; align-items: center;">
+    <div style="background-color: white; display: flex; flex-direction: column; padding: 10px; justify-content: center; align-items: center; text-align: center;">
         <h2>Simple Bar Chart</h2>
         <canvas id="bar" style="width: 400px; height: 300px;"></canvas>
     </div>
-    <div style="display: flex; flex-direction: column; padding: 10px; justify-content: center; align-items: center; text-align: center;">
-        <h2 style="width: 100%;">Hover Enabled</h2>
+    <div style=" background-color: #46344E; display: flex; flex-direction: column; padding: 10px; justify-content: center; align-items: center; text-align: center;">
+        <h2 style="width: 100%; color: white;">Hover Enabled</h2>
         <canvas id="bar2" style="width: 400px; height: 300px;"></canvas>
     </div>
     <script>
            const data = [10,20,13,42,2,60,50]
            const labels = ['Bar 1', 'Bar 2', 'Bar 3', 'Bar 4', 'Bar 5', 'Bar 6', 'Bar 7']
            
+        // Basic Example
            const chart1 = new SimpleBarChart('bar', data, labels)
            chart1.showValues = true;
            chart1.draw();
 
-           const chart2 = new SimpleBarChart('bar2', data, labels)
+        // Customized Example
+           const chart2 = new SimpleBarChart('bar2', data, labels, '#46344E')
            chart2.hoverValues = true;
+           chart2.gridColor = '#FAED26'
+           chart2.fontColor = '#fff'
+           chart2.colors.colors = [
+               '#5A5560',
+               '#9D8D8F',
+               '#9B786F'
+           ]
            chart2.draw();
     </script>
 </body>

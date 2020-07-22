@@ -11,6 +11,7 @@
  */
 function drawLine(ctx, x1, y1, x2, y2, color='black') {
     ctx.beginPath();
+    ctx.strokeStyle = color;
     ctx.moveTo(x1, y2);
     ctx.lineTo(x2, y2);
     ctx.stroke()
@@ -45,8 +46,9 @@ class Bar {
      * @param {String} label text label
      * @param {bool} valueOnHover bool if true shows bar value on hover
      * @param {bool} valueAlways bool if true shows value above bar always
+     * @param {String} labelColor valid CSS color for labels
      */
-    constructor(x, y, width, height, color='black', label=null, value=null, valueOnHover=true, valueAlways=false) {
+    constructor(x, y, width, height, color='black', label=null, value=null, valueOnHover=true, valueAlways=false, labelColor = '#000') {
         this.x = x;
         this.y = y;
         this.width = width,
@@ -62,6 +64,7 @@ class Bar {
 
         this.valueOnHover = valueOnHover
         this.valueAlways = valueAlways
+        this.labelColor = labelColor
     }
 
     /**
@@ -82,7 +85,7 @@ class Bar {
     drawWithShadow(ctx, size=4, color='gray') {
         if (this.valueOnHover && !this.valueAlways) {
             ctx.shadowBlur = 0
-            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px')
+            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px', 'sans-serif', this.labelColor)
         }
         ctx.shadowBlur = size;
         ctx.shadowColor = color;
@@ -100,9 +103,9 @@ class Bar {
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.textAlign = 'center'
-        drawLabel(ctx, this.label, this.x + (this.width / 2), this.y + 18)
+        drawLabel(ctx, this.label, this.x + (this.width / 2), this.y + 18, '18px', 'sans-serif', this.labelColor)
         if (!this.valueOnHover && this.valueAlways) {
-            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px')
+            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px', 'sans-serif', this.labelColor)
         }
     }
 }
@@ -126,7 +129,6 @@ class SimpleBarChart {
         this.ctx = this.element.getContext('2d')
         this.backgroundColor = backgroundColor;
         this.element.style.backgroundColor = this.backgroundColor;
-        this.gridColor = gridColor;
         this.bars = [];
         this.active = null;
 
@@ -134,6 +136,8 @@ class SimpleBarChart {
         this.colors = new ColorWheel(colors)
         this.showValues = false
         this.hoverValues = false
+        this.gridColor = gridColor;
+        this.fontColor = '#000'
     }
 
     /**
@@ -159,8 +163,8 @@ class SimpleBarChart {
         const gridLines = Math.floor(maxValue / scale);
         const spacing = (this.element.height - (padding*2)) / gridLines;
         for(let x = 0; x < gridLines + 1; x ++) {
-            drawLine(this.ctx, 0, x * spacing + padding, this.element.width, x * spacing + padding)
-            drawLabel(this.ctx, (gridLines - x) * (scale), 1, x * spacing + padding - 12)
+            drawLine(this.ctx, 0, x * spacing + padding, this.element.width, x * spacing + padding, this.gridColor)
+            drawLabel(this.ctx, (gridLines - x) * (scale), 1, x * spacing + padding - 12, '18px', 'sans-serif', this.fontColor)
         }
     }
 
@@ -191,7 +195,8 @@ class SimpleBarChart {
                 this.labels[x] || null, 
                 this.data[x],
                 this.hoverValues,
-                this.showValues
+                this.showValues,
+                this.fontColor
             )
             bar.draw(this.ctx)
             this.bars.push(bar)
@@ -268,7 +273,7 @@ class ColorWheel {
      * Helper method to get next color
      */
     get() {
-        if (this.index == this.colors.length-1) {
+        if (this.index == this.colors.length) {
             this.index = 0
         }
         return this.colors[this.index++]
