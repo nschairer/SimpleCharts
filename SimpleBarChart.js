@@ -43,19 +43,25 @@ class Bar {
      * @param {Number} height scaled height
      * @param {String} color valid CSS color
      * @param {String} label text label
+     * @param {bool} valueOnHover bool if true shows bar value on hover
+     * @param {bool} valueAlways bool if true shows value above bar always
      */
-    constructor(x, y, width, height, color='black', label=null) {
+    constructor(x, y, width, height, color='black', label=null, value=null, valueOnHover=true, valueAlways=false) {
         this.x = x;
         this.y = y;
         this.width = width,
         this.height = height
         this.color = color
         this.label = label || ''
+        this.value = value || ''
 
         this.dpX = x / window.devicePixelRatio;
         this.dpY = y / window.devicePixelRatio;
         this.dpWidth = width / window.devicePixelRatio;
         this.dpHeight = height / window.devicePixelRatio;
+
+        this.valueOnHover = valueOnHover
+        this.valueAlways = valueAlways
     }
 
     /**
@@ -74,6 +80,10 @@ class Bar {
      * @param {String} color valid CSS color of shadow blur
      */
     drawWithShadow(ctx, size=4, color='gray') {
+        if (this.valueOnHover && !this.valueAlways) {
+            ctx.shadowBlur = 0
+            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px')
+        }
         ctx.shadowBlur = size;
         ctx.shadowColor = color;
         ctx.fillStyle = this.color
@@ -91,6 +101,9 @@ class Bar {
         ctx.fillRect(this.x, this.y, this.width, this.height);
         ctx.textAlign = 'center'
         drawLabel(ctx, this.label, this.x + (this.width / 2), this.y + 18)
+        if (!this.valueOnHover && this.valueAlways) {
+            drawLabel(ctx, this.value, this.x + (this.width / 2), this.y + this.height - 18, '24px')
+        }
     }
 }
 
@@ -106,7 +119,7 @@ class SimpleBarChart {
      * @param {String} gridColor valid CSS color for grid lines
      * @param {String[]} colors list of valid CSS colors for bars
      */
-    constructor (id, data, labels=null, backgroundColor='#fff', gridColor = '#000', colors=null) {
+    constructor (id, data, labels=null, backgroundColor='#fff', gridColor = '#000', colors = null) {
         this.data = data;
         this.labels = labels || [];
         this.element = document.querySelector(`#${id}`);
@@ -116,7 +129,11 @@ class SimpleBarChart {
         this.gridColor = gridColor;
         this.bars = [];
         this.active = null;
+
+        // Styles
         this.colors = new ColorWheel(colors)
+        this.showValues = false
+        this.hoverValues = false
     }
 
     /**
@@ -168,7 +185,14 @@ class SimpleBarChart {
         for(let x = 0; x < this.data.length; x++) {
             const xStart = x * spaceWidth + (spacing / 2)
             const height = - (this.data[x]/maxValue) * maxHeight
-            const bar = new Bar(xStart, this.element.height - 100, barWidth, height, this.colors.get(), this.labels[x] || null)
+            const bar = new Bar(
+                xStart, this.element.height - 100, barWidth, height, 
+                this.colors.get(), 
+                this.labels[x] || null, 
+                this.data[x],
+                this.hoverValues,
+                this.showValues
+            )
             bar.draw(this.ctx)
             this.bars.push(bar)
         }

@@ -15,5 +15,6 @@ For now download SimpleBarChart.js and place it in your project directory
     <script/>
 </body>
 ```
-
+![hoverBar](./img/hoverBar.gif)
+<br>
 ![blankBar](./img/simpleBar.png)
