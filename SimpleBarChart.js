@@ -132,12 +132,23 @@ class SimpleBarChart {
         this.bars = [];
         this.active = null;
 
+        //Scale canvas
+        this.scaleCanvas()
+
         // Styles
         this.colors = new ColorWheel(colors)
         this.showValues = false
         this.hoverValues = false
         this.gridColor = gridColor;
         this.fontColor = '#000'
+
+        //Spacings
+        this.scale = 10
+        this.padding = 100
+        this.maxValue = Math.max(...this.data)//Max value in data
+        this.gridLines = Math.floor(this.maxValue / this.scale)//Total gridlines based on selected scale
+        this.spacing = (this.element.height - (this.padding * 2)) / this.gridLines//Spacing between gridlines based on padding and canvas height
+        this.barSpacing = 40//Spacing between bars
     }
 
     /**
@@ -155,16 +166,11 @@ class SimpleBarChart {
      * Helper method to draw grid
      * padding sets space from top of canvas, grid lines are spread evenly throughout
      * the remaining height after padding offset
-     * @param {Number} scale Scale for grid lines
      */
-    grid(scale=10) {
-        const padding = 100
-        const maxValue = Math.max(...this.data);
-        const gridLines = Math.floor(maxValue / scale);
-        const spacing = (this.element.height - (padding*2)) / gridLines;
-        for(let x = 0; x < gridLines + 1; x ++) {
-            drawLine(this.ctx, 0, x * spacing + padding, this.element.width, x * spacing + padding, this.gridColor)
-            drawLabel(this.ctx, (gridLines - x) * (scale), 1, x * spacing + padding - 12, '18px', 'sans-serif', this.fontColor)
+    grid() {
+        for(let x = 0; x < this.gridLines + 1; x ++) {
+            drawLine(this.ctx, 0, x * this.spacing + this.padding, this.element.width, x * this.spacing + this.padding, this.gridColor)
+            drawLabel(this.ctx, (this.gridLines - x) * (this.scale), 1, x * this.spacing + this.padding - 12, '18px', 'sans-serif', this.fontColor)
         }
     }
 
@@ -174,7 +180,6 @@ class SimpleBarChart {
      * @param {Number} spacing Spacing desired between bars
      */
     drawBars(maxHeight, spacing) {
-        const maxValue = Math.max(...this.data);//this gives the proportion for the height
         const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
         const spaceWidth = this.element.width / this.data.length
         
@@ -188,7 +193,7 @@ class SimpleBarChart {
 
         for(let x = 0; x < this.data.length; x++) {
             const xStart = x * spaceWidth + (spacing / 2)
-            const height = - (this.data[x]/maxValue) * maxHeight
+            const height = - (this.data[x]/this.maxValue) * maxHeight
             const bar = new Bar(
                 xStart, this.element.height - 100, barWidth, height, 
                 this.colors.get(), 
@@ -234,9 +239,9 @@ class SimpleBarChart {
      * Initial draw method
      */
     draw () {
-        this.scaleCanvas();
+        // this.scaleCanvas();
         this.grid()
-        this.drawBars(this.element.height - 200, 40)
+        this.drawBars(this.element.height - (this.padding * 2), this.barSpacing)
         this.element.onmousemove = e => this.mouseDidMove(e);
     }
     
@@ -247,7 +252,7 @@ class SimpleBarChart {
         this.ctx.clearRect(0,0,this.element.width, this.element.height)
         this.scaleCanvas()
         this.grid()
-        this.drawBars(this.element.height - 200, 40)
+        this.drawBars(this.element.height - (this.padding * 2), this.barSpacing)
     }
 }
 
