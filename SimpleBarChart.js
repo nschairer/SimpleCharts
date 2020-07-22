@@ -42,13 +42,15 @@ class Bar {
      * @param {Number} width scaled width
      * @param {Number} height scaled height
      * @param {String} color valid CSS color
+     * @param {String} label text label
      */
-    constructor(x, y, width, height, color='black') {
+    constructor(x, y, width, height, color='black', label=null) {
         this.x = x;
         this.y = y;
         this.width = width,
         this.height = height
         this.color = color
+        this.label = label || ''
 
         this.dpX = x / window.devicePixelRatio;
         this.dpY = y / window.devicePixelRatio;
@@ -87,6 +89,8 @@ class Bar {
         ctx.shadowColor = 'transparent'
         ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height);
+        ctx.textAlign = 'center'
+        drawLabel(ctx, this.label, this.x + (this.width / 2), this.y + 18)
     }
 }
 
@@ -97,11 +101,14 @@ class SimpleBarChart {
      * SimpleBarChart default constructor 
      * @param {String} id id of canvas element to draw on
      * @param {Number[]} data list of numbers to display
+     * @param {String[]} labels list of data labels
      * @param {String} backgroundColor valid CSS background color
      * @param {String} gridColor valid CSS color for grid lines
+     * @param {String[]} colors list of valid CSS colors for bars
      */
-    constructor (id, data, backgroundColor='#fff', gridColor = '#000') {
+    constructor (id, data, labels=null, backgroundColor='#fff', gridColor = '#000', colors=null) {
         this.data = data;
+        this.labels = labels || [];
         this.element = document.querySelector(`#${id}`);
         this.ctx = this.element.getContext('2d')
         this.backgroundColor = backgroundColor;
@@ -109,7 +116,7 @@ class SimpleBarChart {
         this.gridColor = gridColor;
         this.bars = [];
         this.active = null;
-        this.colors = new ColorWheel()
+        this.colors = new ColorWheel(colors)
     }
 
     /**
@@ -133,8 +140,8 @@ class SimpleBarChart {
         const padding = 100
         const maxValue = Math.max(...this.data);
         const gridLines = Math.floor(maxValue / scale);
-        const spacing = (this.element.height - padding) / gridLines;
-        for(let x = 0; x < gridLines; x ++) {
+        const spacing = (this.element.height - (padding*2)) / gridLines;
+        for(let x = 0; x < gridLines + 1; x ++) {
             drawLine(this.ctx, 0, x * spacing + padding, this.element.width, x * spacing + padding)
             drawLabel(this.ctx, (gridLines - x) * (scale), 1, x * spacing + padding - 12)
         }
@@ -161,7 +168,7 @@ class SimpleBarChart {
         for(let x = 0; x < this.data.length; x++) {
             const xStart = x * spaceWidth + (spacing / 2)
             const height = - (this.data[x]/maxValue) * maxHeight
-            const bar = new Bar(xStart, this.element.height, barWidth, height, this.colors.get())
+            const bar = new Bar(xStart, this.element.height - 100, barWidth, height, this.colors.get(), this.labels[x] || null)
             bar.draw(this.ctx)
             this.bars.push(bar)
         }
@@ -200,7 +207,7 @@ class SimpleBarChart {
     draw () {
         this.scaleCanvas();
         this.grid()
-        this.drawBars(this.element.height - 100, 40)
+        this.drawBars(this.element.height - 200, 40)
         this.element.onmousemove = e => this.mouseDidMove(e);
     }
     
@@ -211,7 +218,7 @@ class SimpleBarChart {
         this.ctx.clearRect(0,0,this.element.width, this.element.height)
         this.scaleCanvas()
         this.grid()
-        this.drawBars(this.element.height - 100, 40)
+        this.drawBars(this.element.height - 200, 40)
     }
 }
 
