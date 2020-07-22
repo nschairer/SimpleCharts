@@ -62,6 +62,28 @@ class Bar {
     isHover(x,y){
         return x >= this.dpX && x <= this.dpX + this.dpWidth && y >= this.dpY + this.dpHeight
     }
+
+    /**
+     * Helper method to add shadow when hovering
+     * @param {Object} ctx 2d context 
+     * @param {Number} size size of shadow blur
+     * @param {String} color valid CSS color of shadow blur
+     */
+    drawWithShadow(ctx, size=2, color='black') {
+        ctx.shadowBlur = size;
+        ctx.shadowColor = color;
+        ctx.fillRect(this.x, this.y, this.width, this.height)
+    }
+
+    /**
+     * Helper method to draw bar on chart
+     * @param {Object} ctx 2d context 
+     */
+    draw(ctx) {
+        ctx.shadowBlur=0
+        ctx.shadowColor = 'transparent'
+        ctx.fillRect(this.x, this.y, this.width, this.height);
+    }
 }
 
 
@@ -82,6 +104,7 @@ class SimpleBarChart {
         this.element.style.backgroundColor = this.backgroundColor;
         this.gridColor = gridColor;
         this.bars = [];
+        this.active = null;
     }
 
     /**
@@ -123,18 +146,11 @@ class SimpleBarChart {
         const spaceWidth = this.element.width / this.data.length
         
         for(let x = 0; x < this.data.length; x++) {
-
             const xStart = x * spaceWidth + (spacing / 2)
             const height = - (this.data[x]/maxValue) * maxHeight
-            this.ctx.fillRect(
-                xStart,
-                this.element.height,
-                barWidth,
-                height
-            )
-            this.bars.push(
-                new Bar(xStart, this.element.height, barWidth, height)
-            )
+            const bar = new Bar(xStart, this.element.height, barWidth, height)
+            bar.draw(this.ctx)
+            this.bars.push(bar)
         }
 
     }
@@ -147,9 +163,17 @@ class SimpleBarChart {
         const rect = this.element.getBoundingClientRect()
         const x = e.clientX - rect.left;
         const y = e.clientY - rect.top;
-        for(let bar of this.bars) {
+        if (this.active && !this.bars[this.active].isHover(x,y)) {
+            this.active = null;
+            this.reset()
+            console.log('reset')
+        }
+        for(let i = 0; i < this.bars.length; i++) {
+            const bar = this.bars[i]
             if (bar.isHover(x,y)) {
                 this.element.style.cursor = 'pointer';
+                bar.drawWithShadow(this.ctx)
+                this.active = i;
                 break
             } else {
                 this.element.style.cursor = '';
@@ -157,10 +181,23 @@ class SimpleBarChart {
         }
     }
 
+    /**
+     * Initial draw method
+     */
     draw () {
         this.scaleCanvas();
         this.grid()
         this.drawBars(this.element.height - 100, 40)
         this.element.onmousemove = e => this.mouseDidMove(e);
+    }
+    
+    /**
+     * Method to clear canvas and redraw
+     */
+    reset() {
+        this.ctx.clearRect(0,0,this.element.width, this.element.height)
+        this.scaleCanvas()
+        this.grid()
+        this.drawBars(this.element.height - 100, 40)
     }
 }
