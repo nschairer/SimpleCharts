@@ -41,12 +41,14 @@ class Bar {
      * @param {Number} y scaled y-value
      * @param {Number} width scaled width
      * @param {Number} height scaled height
+     * @param {String} color valid CSS color
      */
-    constructor(x, y, width, height) {
+    constructor(x, y, width, height, color='black') {
         this.x = x;
         this.y = y;
         this.width = width,
         this.height = height
+        this.color = color
 
         this.dpX = x / window.devicePixelRatio;
         this.dpY = y / window.devicePixelRatio;
@@ -69,9 +71,10 @@ class Bar {
      * @param {Number} size size of shadow blur
      * @param {String} color valid CSS color of shadow blur
      */
-    drawWithShadow(ctx, size=2, color='black') {
+    drawWithShadow(ctx, size=4, color='gray') {
         ctx.shadowBlur = size;
         ctx.shadowColor = color;
+        ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height)
     }
 
@@ -82,6 +85,7 @@ class Bar {
     draw(ctx) {
         ctx.shadowBlur=0
         ctx.shadowColor = 'transparent'
+        ctx.fillStyle = this.color
         ctx.fillRect(this.x, this.y, this.width, this.height);
     }
 }
@@ -105,6 +109,7 @@ class SimpleBarChart {
         this.gridColor = gridColor;
         this.bars = [];
         this.active = null;
+        this.colors = new ColorWheel()
     }
 
     /**
@@ -145,10 +150,18 @@ class SimpleBarChart {
         const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
         const spaceWidth = this.element.width / this.data.length
         
+
+        if (this.bars.length) {
+            for(let bar of this.bars) {
+                bar.draw(this.ctx)
+            }
+            return;
+        }
+
         for(let x = 0; x < this.data.length; x++) {
             const xStart = x * spaceWidth + (spacing / 2)
             const height = - (this.data[x]/maxValue) * maxHeight
-            const bar = new Bar(xStart, this.element.height, barWidth, height)
+            const bar = new Bar(xStart, this.element.height, barWidth, height, this.colors.get())
             bar.draw(this.ctx)
             this.bars.push(bar)
         }
@@ -200,4 +213,34 @@ class SimpleBarChart {
         this.grid()
         this.drawBars(this.element.height - 100, 40)
     }
+}
+
+
+class ColorWheel {
+    /**
+     * Default constructor for color wheel class
+     * @param {String[]} colors list of colors optional 
+     */
+    constructor(colors=null) {
+        this.colors = colors || [
+            '#05386B',
+            '#379683',
+            '#5CDB95',
+            '#8EE4AF',
+            '#EDF5E1'
+        ]
+
+        this.index = 0
+    }
+
+    /**
+     * Helper method to get next color
+     */
+    get() {
+        if (this.index == this.colors.length-1) {
+            this.index = 0
+        }
+        return this.colors[this.index++]
+    }
+
 }
