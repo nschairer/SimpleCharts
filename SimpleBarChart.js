@@ -43,7 +43,7 @@ class SimpleBarChart {
      * @param {String} backgroundColor valid CSS background color
      * @param {String} gridColor valid CSS color for grid lines
      */
-    constructor (id, data, backgroundColor='#fafafa', gridColor = '#000') {
+    constructor (id, data, backgroundColor='#fff', gridColor = '#000') {
         this.data = data;
         this.element = document.querySelector(`#${id}`);
         this.ctx = this.element.getContext('2d')
@@ -76,12 +76,33 @@ class SimpleBarChart {
         const spacing = (this.element.height - padding) / gridLines;
         for(let x = 0; x < gridLines; x ++) {
             drawLine(this.ctx, 0, x * spacing + padding, this.element.width, x * spacing + padding)
-            drawLabel(this.ctx, (gridLines - x) * (scale), 10, x * spacing + padding - 12)
+            drawLabel(this.ctx, (gridLines - x) * (scale), 1, x * spacing + padding - 12)
         }
+    }
+
+    /**
+     * Helper method to draw the bars
+     * @param {Number} maxHeight maximum height a bar can be
+     * @param {Number} spacing Spacing desired between bars
+     */
+    bars(maxHeight, spacing) {
+        const maxValue = Math.max(...this.data);//this gives the proportion for the height
+        const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
+        const spaceWidth = this.element.width / this.data.length
+        for(let x = 0; x < this.data.length; x++) {
+            this.ctx.fillRect(
+                x * spaceWidth + (spacing / 2),
+                this.element.height,
+                barWidth,
+                - (this.data[x]/maxValue) * maxHeight
+            )
+        }
+
     }
 
     draw () {
         this.scaleCanvas();
         this.grid()
+        this.bars(this.element.height - 100, 40)
     }
 }
