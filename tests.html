@@ -26,7 +26,7 @@
 
         console.log(width, height)
 
-        const data = [1,2,3,4,5,6,7,8,2,3,4,5,6,7,8]
+        const data = [1,2,3,4,5,6,7,8,]
 
         //smooshes all in one
         // const barSpace = width / data.length
@@ -94,10 +94,6 @@
             const x = e.clientX - rect.left
             const y = e.clientY - rect.top
             pointer.moveTo(x * window.devicePixelRatio ,y * window.devicePixelRatio)
-            // console.log(pointer.x, pointer.y)
-            // console.log(viewport.w / window.devicePixelRatio)
-            // console.log(viewport.h / window.devicePixelRatio)
-            // viewport.x += 100 * 0.05
         })
 
         context.canvas.onmouseout = e => {
@@ -128,7 +124,7 @@
 
         function drawScroller() {
 
-            let scrollProportion = (viewport.w / maxX) * ((maxX - viewport.w) / maxX )
+            let scrollProportion = (viewport.w / maxX)
 
             scroller.w = viewport.w * (scrollProportion > 0 ? scrollProportion : 1)
 
@@ -168,15 +164,13 @@
             if(scroller.mouseDown && scroller.x >= 0 && (scroller.x + scroller.w) <= viewport.w) {
                 let newX = x - pointerX
                 if (scroller.x + (x - pointerX) < 0) {
-                    scroller.x = 0
-                    // viewport.x = 0
+                    scroller.x = 0;
+                    viewport.x = 0;
                 } else if (scroller.x + scroller.w + (x - pointerX) > viewport.w) {
                     scroller.x = viewport.w - scroller.w
-                    // viewport.x = maxX - barSpace
                 } else  {
                     scroller.x += (x - pointerX)
-                    // viewport.x += (x - pointerX) / (viewport.w / (maxX))
-                    viewport.x += ((x - pointerX) / viewport.w) * (maxX)
+                    viewport.x += (x - pointerX) / (viewport.w / (maxX))
                 }
             }
             pointerX = x
