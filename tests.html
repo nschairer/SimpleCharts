@@ -7,7 +7,7 @@
 </head>
 <body style="flex-direction: column; display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;">
     <canvas id="chart" style="width: 300px; height: 300px; background-color: lightcoral;"></canvas>
-    <canvas id="scroller" style="width: 300px; height: 10px; background-color: lightcoral;"></canvas>
+    <canvas id="scroller" style="width: 300px; height: 18px; background-color: lightcoral;"></canvas>
     <script>
         function drawLine(ctx, x1, y1, x2, y2, color='black') {
             ctx.beginPath();
@@ -26,13 +26,14 @@
 
         console.log(width, height)
 
-        const data = [1,2,3,4,5]
+        const data = [1,2,3,4,5,6,7,8,2,3,4,5,6,7,8]
 
         //smooshes all in one
         // const barSpace = width / data.length
 
         //statci to grow
         const barSpace = width / (3)
+        console.log(barSpace)
 
         const max = Math.max(...data)
 
@@ -58,6 +59,8 @@
         const viewport = new ViewPort(0, 0, width, height)
         const pointer = new Pointer(0, 0)
 
+        let maxX = 0;
+
         function loop() {
             context.clearRect(0,0,width,height)
             drawLine(context, 0, height, 0, 0)
@@ -68,7 +71,7 @@
                 let y = height;
                 let barWidth = barSpace;
                 let barHeight = (-data[i]/max)*height
-
+                if (x + barWidth > maxX) { maxX = x + barWidth}
                 //Only render what fits
                 if (x < viewport.x + viewport.w || x + barWidth > viewport.x) {
                     if (pointer.x >= x && pointer.x <= x + barWidth && pointer.y <= y && pointer.y >= y + barHeight) {
@@ -124,6 +127,11 @@
         const scroller = new Scroller(0,0,100,scrollerContext.canvas.height)
 
         function drawScroller() {
+
+            let scrollProportion = (viewport.w / maxX) * ((maxX - viewport.w) / maxX )
+
+            scroller.w = viewport.w * (scrollProportion > 0 ? scrollProportion : 1)
+
             scrollerContext.clearRect(0,0,swidth,sheight)
             scrollerContext.beginPath()
             scrollerContext.fillStyle = 'gray'
@@ -147,17 +155,31 @@
             scroller.mouseDown = false
         }
 
+        scrollerContext.canvas.onmouseout = e => {
+            scroller.mouseDown = false
+        }
+
+        let pointerX = 0;
+    
         scrollerContext.canvas.onmousemove = e => {
             const rect = scrollerContext.canvas.getBoundingClientRect()
             const x = (e.clientX - rect.left) * window.devicePixelRatio
-            if(scroller.mouseDown && x > scroller.x) {
-                scroller.x += 10 * 0.5
-                viewport.x += 10 * 0.5
-            } else if (scroller.mouseDown && x < scroller.x) {
-                scroller.x -= 10 * 0.5
-                viewport.x < 10 ? null : viewport.x -= 10 * 0.5
-                //scale scrollbar width to max viewport x value
+
+            if(scroller.mouseDown && scroller.x >= 0 && (scroller.x + scroller.w) <= viewport.w) {
+                let newX = x - pointerX
+                if (scroller.x + (x - pointerX) < 0) {
+                    scroller.x = 0
+                    // viewport.x = 0
+                } else if (scroller.x + scroller.w + (x - pointerX) > viewport.w) {
+                    scroller.x = viewport.w - scroller.w
+                    // viewport.x = maxX - barSpace
+                } else  {
+                    scroller.x += (x - pointerX)
+                    // viewport.x += (x - pointerX) / (viewport.w / (maxX))
+                    viewport.x += ((x - pointerX) / viewport.w) * (maxX)
+                }
             }
+            pointerX = x
         }
 
     </script>
