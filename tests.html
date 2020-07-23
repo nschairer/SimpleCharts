@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body style="flex-direction: column; display: flex; justify-content: center; align-items: center; height: 100vh; width: 100vw;">
+    <canvas id="chart" style="width: 300px; height: 300px; background-color: lightcoral;"></canvas>
+    <canvas id="scroller" style="width: 300px; height: 10px; background-color: lightcoral;"></canvas>
+    <script>
+        function drawLine(ctx, x1, y1, x2, y2, color='black') {
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke()
+        }
+        const context = document.querySelector('#chart').getContext('2d')
+
+        const width = +getComputedStyle(context.canvas).getPropertyValue("width").slice(0, -2) * window.devicePixelRatio;
+        const height = +getComputedStyle(context.canvas).getPropertyValue("height").slice(0, -2) * window.devicePixelRatio;
+
+        context.canvas.setAttribute('width',width)
+        context.canvas.setAttribute('height',height)
+
+        console.log(width, height)
+
+        const data = [1,2,3,4,5]
+
+        //smooshes all in one
+        // const barSpace = width / data.length
+
+        //statci to grow
+        const barSpace = width / (3)
+
+        const max = Math.max(...data)
+
+
+        //use this to scroll
+        function ViewPort(x, y, w, h) {
+            this.x = x
+            this.y = y
+            this.w = w
+            this.h = h
+        }
+
+        function Pointer (x, y) {
+            this.x = x;
+            this.y = y;
+            this.moveTo = function(x,y) {
+                this.x = x
+                this.y = y
+            }
+        }
+
+        //ViewPort to cover all of canvas
+        const viewport = new ViewPort(0, 0, width, height)
+        const pointer = new Pointer(0, 0)
+
+        function loop() {
+            context.clearRect(0,0,width,height)
+            drawLine(context, 0, height, 0, 0)
+            drawLine(context, 0, height, width, height)
+
+            for(let i = 0; i < data.length; i++) {
+                let x = i * barSpace;
+                let y = height;
+                let barWidth = barSpace;
+                let barHeight = (-data[i]/max)*height
+
+                //Only render what fits
+                if (x < viewport.x + viewport.w || x + barWidth > viewport.x) {
+                    if (pointer.x >= x && pointer.x <= x + barWidth && pointer.y <= y && pointer.y >= y + barHeight) {
+                        context.shadowBlur = 4
+                        context.shadowColor = 'darkblue'
+                    }
+                    context.beginPath()
+                    context.rect(x - viewport.x, y, barWidth, barHeight)
+                    context.stroke()
+                    context.shadowBlur = 0
+                }
+            }
+            requestAnimationFrame(loop)
+        }
+
+        loop()
+
+        context.canvas.addEventListener('mousemove', e => {
+            const rect = context.canvas.getBoundingClientRect()
+            const x = e.clientX - rect.left
+            const y = e.clientY - rect.top
+            pointer.moveTo(x * window.devicePixelRatio ,y * window.devicePixelRatio)
+            // console.log(pointer.x, pointer.y)
+            // console.log(viewport.w / window.devicePixelRatio)
+            // console.log(viewport.h / window.devicePixelRatio)
+            // viewport.x += 100 * 0.05
+        })
+
+        context.canvas.onmouseout = e => {
+            pointer.moveTo(0,0)
+        }
+
+        const scrollerContext = document.querySelector('#scroller').getContext('2d')
+
+        function Scroller(x,y,w,h) {
+            this.x = x;
+            this.y = y;
+            this.w = w;
+            this.h = h;
+            this.lastX = x;
+            this.intersect = function(x,y) {
+                return x >= this.x && x <= this.x + this.w //&& y <= this.height && y >= this.y
+            }
+            this.mouseDown = false;
+        }
+
+        const swidth = +getComputedStyle(scrollerContext.canvas).getPropertyValue("width").slice(0, -2) * window.devicePixelRatio;
+        const sheight = +getComputedStyle(scrollerContext.canvas).getPropertyValue("height").slice(0, -2) * window.devicePixelRatio;
+
+        scrollerContext.canvas.setAttribute('width',swidth)
+        scrollerContext.canvas.setAttribute('height',sheight)
+
+        const scroller = new Scroller(0,0,100,scrollerContext.canvas.height)
+
+        function drawScroller() {
+            scrollerContext.clearRect(0,0,swidth,sheight)
+            scrollerContext.beginPath()
+            scrollerContext.fillStyle = 'gray'
+            scrollerContext.fillRect(scroller.x,scroller.y,scroller.w,scroller.h)
+            scrollerContext.stroke()
+            requestAnimationFrame(drawScroller)
+        }
+        
+        drawScroller()
+
+        scrollerContext.canvas.onmousedown = e => {
+            const rect = scrollerContext.canvas.getBoundingClientRect()
+            const x = (e.clientX - rect.left) * window.devicePixelRatio
+            const y = (e.clientY - rect.top) * window.devicePixelRatio
+            if (scroller.intersect(x,y)) {
+                scroller.mouseDown = true
+            }
+        }
+
+        scrollerContext.canvas.onmouseup = e => {
+            scroller.mouseDown = false
+        }
+
+        scrollerContext.canvas.onmousemove = e => {
+            const rect = scrollerContext.canvas.getBoundingClientRect()
+            const x = (e.clientX - rect.left) * window.devicePixelRatio
+            if(scroller.mouseDown && x > scroller.x) {
+                scroller.x += 10 * 0.5
+                viewport.x += 10 * 0.5
+            } else if (scroller.mouseDown && x < scroller.x) {
+                scroller.x -= 10 * 0.5
+                viewport.x < 10 ? null : viewport.x -= 10 * 0.5
+                //scale scrollbar width to max viewport x value
+            }
+        }
+
+    </script>
+</body>
+</html>

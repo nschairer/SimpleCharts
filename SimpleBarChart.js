@@ -12,7 +12,7 @@
 function drawLine(ctx, x1, y1, x2, y2, color='black') {
     ctx.beginPath();
     ctx.strokeStyle = color;
-    ctx.moveTo(x1, y2);
+    ctx.moveTo(x1, y1);
     ctx.lineTo(x2, y2);
     ctx.stroke()
 }
@@ -183,6 +183,7 @@ class SimpleBarChart {
         const barWidth = (this.element.width - (spacing * this.data.length)) / this.data.length;
         const spaceWidth = (this.element.width-spacing) / this.data.length
         
+
         if (this.bars.length) {
             for(let bar of this.bars) {
                 bar.draw(this.ctx)
