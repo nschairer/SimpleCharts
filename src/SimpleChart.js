@@ -56,9 +56,10 @@ function drawLine(ctx, x1, y1, x2, y2, color='black') {
  * @param {String} font font style
  * @param {String} color valid CSS color
  */
-function drawLabel(ctx, text, x, y, size='18px', font='sans-serif', color='black') {
+function drawLabel(ctx, text, x, y, size='18px', font='sans-serif', color='black', align='left') {
     ctx.font = `${size} ${font}`
     ctx.fillStyle = color
+    ctx.textAlign = align
     ctx.fillText(text, x, y)
 }
 
@@ -116,7 +117,7 @@ class SimpleChart {
         // Minimum required
         this.id = props.id;
         this.values = props.values;
-        this.labels = props.labels;
+        this.labels = props.labels || [];
         this.context = document.querySelector(`#${this.id}`).getContext('2d');
         this.scale()
 
@@ -136,10 +137,12 @@ class SimpleChart {
         this.gridLabelInset = props.gridLabelInset || 2;
         this.showZero = props.showZero || false;
         
+        
         //X-Axis Style -- might change this to dataStyle
         this.xAxisFontFamily = props.xAxisFontFamily || 'sans-serif';
         this.xAxisFontSize = props.xAxisFontSize || '18px';
         this.xAxisFontColor = props.xAxisFontColor || 'black';
+        this.labelSpace = props.labelSpace || 30;
         //End style attributes
 
         //Listeners
@@ -198,19 +201,26 @@ class SimpleBarChart extends SimpleChart {
         super(props);
 
         // Bar Attributes
-        //Note - want to be able to turn on fillEvenly and we ignore barwidth but apply spacing
         this.fillEvenly = props.fillEvenly || true
         this.barSpacing = props.barSpacing || 20;
         if (this.fillEvenly){
-            //- (this.barSpacing*this.values.length*2)
             this.barWidth = ((this.width - parseInt(this.gridFontSize)) - (this.barSpacing*this.values.length*2)) / this.values.length
         } else {
             this.barWidth = props.barWidth || 20;
         }
+
+        //Bar Styles
+        this.barHoverFontFamily = 'sans-serif'
+        this.barHoverFontSize = '24px'
+        this.barHoverFontColor = 'black'
+
+
         this.hover = props.hover || true;
-        this.colors = props.colors || ['red','green','blue','yellow','orange']
+        this.colors = props.colors || null
+        this.colorWheel = new ColorWheel(this.colors)
+        this.colorMap = {}
         this.topSpacing = props.topSpacing || 50;
-        this.shadowColor = props.shadowColor || 'darkblue';
+        this.shadowColor = props.shadowColor || 'black';
         this.shadowSize = props.shadowSize || 4
         this.scale = props.scale || 5;
 
@@ -220,8 +230,9 @@ class SimpleBarChart extends SimpleChart {
         this._MAX_ARR = Math.max(...this.values);
         this._GRID_LINES = Math.ceil( this._MAX_ARR / this.scale )
         this._MAX = this._GRID_LINES * this.scale
-        this._MAX_BAR_HEIGHT = this.height - this.topSpacing
+        this._MAX_BAR_HEIGHT = this.height - this.topSpacing - this.labelSpace
         this._GRID_LINE_SPACE = this._MAX_BAR_HEIGHT / this._GRID_LINES
+        this._BAR_BOTTOM = this.height - this.labelSpace
     }
 
     /**
@@ -230,8 +241,8 @@ class SimpleBarChart extends SimpleChart {
     drawBars = () => {
 
         // Draw Axis
-        drawLine(this.context, 0, this.height, 0, 0);
-        drawLine(this.context, 0, this.height, this.width, this.height)
+        // drawLine(this.context, 0, this._BAR_BOTTOM, 0, 0);
+        drawLine(this.context, 0, this._BAR_BOTTOM + 1, this.width, this._BAR_BOTTOM + 1)
 
 
         // Draw Grid
@@ -246,20 +257,24 @@ class SimpleBarChart extends SimpleChart {
         let maxX = 0;
         for(let i = 0; i < this.values.length; i++) {
             let x =(i * this._BAR_WIDTH) + (i * (this.barSpacing) * 2) + this.barSpacing + this._LABEL_INSET;
-            let y = this.height;
+            let y = this._BAR_BOTTOM;
             let barHeight = ( - this.values[i] / this._MAX ) * this._MAX_BAR_HEIGHT;
             if ( x + this._BAR_WIDTH > maxX) maxX = x + this._BAR_WIDTH;
 
             //Render what fits in viewport
             if (x < this.viewport.x + this.viewport.w || x + this._BAR_WIDTH > this.viewport.x) {
                 if(this.pointer.x >= (x - this.viewport.x) && this.pointer.x <= (x - this.viewport.x) + this._BAR_WIDTH && this.pointer.y <= y && this.pointer.y >= y + barHeight) {
+                    drawLabel(this.context, this.values[i], x + (this._BAR_WIDTH / 2), y + barHeight - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
                     this.context.shadowBlur = this.shadowSize;
                     this.context.shadowColor = this.shadowColor;
                 }
+                this.colorMap[i] = this.colorMap[i] || this.colorWheel.get()
                 this.context.beginPath()
-                this.context.rect(x - this.viewport.x, y, this._BAR_WIDTH, barHeight)
+                this.context.fillStyle = this.colorMap[i]
+                this.context.fillRect(x - this.viewport.x, y, this._BAR_WIDTH, barHeight)
                 this.context.stroke()
                 this.context.shadowBlur = 0
+                drawLabel(this.context, this.labels[i] || '', x + (this._BAR_WIDTH / 2), this.height - (this.labelSpace / 4), this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')
             }
         }
     }
