@@ -1,4 +1,35 @@
 /**
+ * ColorWheel class for providing random colors
+ */
+class ColorWheel {
+    /**
+     * Default constructor for color wheel class
+     * @param {String[]} colors list of colors optional 
+     */
+    constructor(colors=null) {
+        this.colors = colors || [
+            '#05386B',
+            '#379683',
+            '#5CDB95',
+            '#8EE4AF',
+            '#EDF5E1'
+        ]
+        this.index = 0
+    }
+
+    /**
+     * Helper method to get next color
+     */
+    get() {
+        if (this.index == this.colors.length) {
+            this.index = 0
+        }
+        return this.colors[this.index++]
+    }
+
+}
+
+/**
  * Helper method to draw a line on a canvas
  * @param {Object} ctx 2d context
  * @param {Number} x1 Starting x-coordinate
