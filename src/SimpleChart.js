@@ -31,6 +31,9 @@ function drawLabel(ctx, text, x, y, size='18px', font='sans-serif', color='black
     ctx.fillText(text, x, y)
 }
 
+/**
+ * Viewport class to allow for scrolling if elected by user
+ */
 class ViewPort {
     constructor(x, y, w, h) {
         this.x = x;
@@ -40,6 +43,9 @@ class ViewPort {
     }
 }
 
+/**
+ * Pointer class to manage hover interactions
+ */
 class Pointer {
     constructor( x, y ) {
         this.x = x;
@@ -52,6 +58,10 @@ class Pointer {
     }
 }
 
+/**
+ * Scroller class to manage scroll interactions
+ * TBD - practiced functionality in test.html plan to migrate after styling is complete, w/viewport implemented we are all set.
+ */
 class Scroller {
     constructor( x, y, w, h ) {
         this.x = x;
@@ -67,6 +77,9 @@ class Scroller {
 }
 
 
+/**
+ * Base SimpleChart class for all chart types
+ */
 class SimpleChart {
     constructor(props) {
         // Minimum required
@@ -103,6 +116,9 @@ class SimpleChart {
         this.context.canvas.addEventListener('mouseout', this.mouseDidLeave);
     }
 
+    /**
+     * Helper method to scale canvas to device pixel ratio on initialization
+     */
     scale() {
         const width = +getComputedStyle(this.context.canvas).getPropertyValue("width").slice(0, -2) * window.devicePixelRatio;
         const height = +getComputedStyle(this.context.canvas).getPropertyValue("height").slice(0, -2) * window.devicePixelRatio;
@@ -112,6 +128,10 @@ class SimpleChart {
         this.context.canvas.setAttribute('height', height)
     }
 
+    /**
+     * Method for mousemove event to update pointer location
+     * @param {Object} e mousemove event object 
+     */
     mouseDidMove = e => {
         const rect = this.context.canvas.getBoundingClientRect();
         const x = e.clientX - rect.left;
@@ -119,10 +139,18 @@ class SimpleChart {
         this.pointer.moveTo(x * window.devicePixelRatio, y * window.devicePixelRatio)
     }
 
+    /**
+     * Method for mouseout event to update pointer location
+     * @param {Object} e mouseout event object
+     */
     mouseDidLeave = e => {
         this.pointer.moveTo(0,0)
     }
 
+    /**
+     * Helper method to start main loop and apply any render methods for subclass
+     * @param {function} fn function to be applied in main render loop 
+     */
     mainLoop = fn => {
         this.context.clearRect(0,0,this.width, this.height)
         fn()
@@ -131,6 +159,9 @@ class SimpleChart {
 
 }
 
+/**
+ * Bar chart class
+ */
 class SimpleBarChart extends SimpleChart {
     constructor(props) {
         super(props);
@@ -162,6 +193,9 @@ class SimpleBarChart extends SimpleChart {
         this._GRID_LINE_SPACE = this._MAX_BAR_HEIGHT / this._GRID_LINES
     }
 
+    /**
+     * Render method to draw bar chart
+     */
     drawBars = () => {
 
         // Draw Axis
@@ -199,6 +233,9 @@ class SimpleBarChart extends SimpleChart {
         }
     }
 
+    /**
+     * All subclasses must have a draw method to be called upon to start their main renders
+     */
     draw() {
         this.mainLoop(this.drawBars)
     }
