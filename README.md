@@ -13,4 +13,5 @@ const bars = new SimpleBarChart({
 bars.draw()
 ```
 <br>
-![blankBar](./img/simpleBar.gif)
+
+![simpleBar](./img/simpleBar.gif)
