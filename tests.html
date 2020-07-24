@@ -26,7 +26,7 @@
 
         console.log(width, height)
 
-        const data = [1,2,3,4,5,6,7,8,]
+        const data = [1,2,3,4,5,6,7,8,2,3,4,5,6,7,8,]
 
         //smooshes all in one
         // const barSpace = width / data.length
@@ -74,7 +74,7 @@
                 if (x + barWidth > maxX) { maxX = x + barWidth}
                 //Only render what fits
                 if (x < viewport.x + viewport.w || x + barWidth > viewport.x) {
-                    if (pointer.x >= x && pointer.x <= x + barWidth && pointer.y <= y && pointer.y >= y + barHeight) {
+                    if (pointer.x >= (x - viewport.x) && pointer.x <= (x - viewport.x) + barWidth && pointer.y <= y && pointer.y >= y + barHeight) {
                         context.shadowBlur = 4
                         context.shadowColor = 'darkblue'
                     }
