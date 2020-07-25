@@ -12,12 +12,13 @@ const bars = new SimpleBarChart({
 
 bars.draw()
 ```
+
+## Customizable
+![customized](./img/customized.png)
 <br>
 
 ![simpleBar](./img/simpleBar.gif)
 
-## Customizable
-![customized](./img/customized.png)
 
 # Properties
 ## Minimal:
