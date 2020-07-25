@@ -1,5 +1,14 @@
 
-
+/**
+ * Helper method to draw rectangle with a corner radius
+ * @param {Object} ctx 2d context
+ * @param {Number} x x-start
+ * @param {Number} y y-start
+ * @param {Number} w width
+ * @param {Number} h height
+ * @param {Number} cr corner radius
+ * @param {String} color valid CSS color
+ */
 function roundedRect(ctx, x, y, w, h, cr, color) {
     ctx.strokeStyle = color
     ctx.lineJoin = "round";
