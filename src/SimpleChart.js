@@ -1,3 +1,12 @@
+
+/**
+ * Number formatter for grid values on y-axis
+ * @param {Number} n 
+ */
+function formatNumber(n) {
+    return Intl.NumberFormat('en-US', { notation: "compact" , compactDisplay: "short" }).format(n)
+}
+
 /**
  * ColorWheel class for providing random colors
  */
@@ -137,7 +146,10 @@ class SimpleChart {
         this.gridFontColor = props.gridFontColor || 'black';
         this.gridLabelInset = props.gridLabelInset || 2;
         this.showZero = props.showZero || false;
-        
+        this.unit = props.unit || '';
+        this.gridLineStyle = props.gridLineStyle || 'solid';//Options solid, dashed
+        this.dashes = props.dashes || 50
+        this.dashGap = props.dashGap || 2
         
         //X-Axis Style -- might change this to dataStyle
         this.xAxisFontFamily = props.xAxisFontFamily || 'sans-serif';
@@ -249,8 +261,18 @@ class SimpleBarChart extends SimpleChart {
         // Draw Grid
         for(let x = 0; x < this._GRID_LINES + this.showZero; x ++) {
             let lineY = ((x * this.scale) / this._MAX ) * this._MAX_BAR_HEIGHT + this.topSpacing
-            drawLine(this.context, 0, lineY,this.width, lineY,this.gridLineColor)
-            drawLabel(this.context,(this._GRID_LINES - x) * this.scale, this.gridLabelInset, lineY - parseInt(this.gridFontSize),this.gridFontSize, this.gridFontFamily, this.gridFontColor)
+            if(this.gridLineStyle === 'dashed') {
+                const dashWidth = (this.width - (2 * this.dashGap * this.dashes)) / this.dashes
+                const dashSpace = (this.width / this.dashes)
+                for(let y = 0; y < this.dashes + 1; y++) {
+                    drawLine(this.context, (dashSpace * y) + this.dashGap, lineY, dashWidth + (dashSpace * y), lineY, this.gridLineColor)
+                }
+
+            } else {
+                drawLine(this.context, 0, lineY,this.width, lineY,this.gridLineColor)
+            }
+            let gridValue = (this._GRID_LINES - x) * this.scale;
+            drawLabel(this.context, this.unit + formatNumber(gridValue), this.gridLabelInset, lineY - parseInt(this.gridFontSize),this.gridFontSize, this.gridFontFamily, this.gridFontColor)
         }
 
         // Draw Bars

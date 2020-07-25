@@ -12,10 +12,12 @@
     <script>
         const bars = new SimpleBarChart({
             id: 'bar',
-            values: [11.2,28,3,39,15,36,17],
+            values: [1100.2,2800,300,3900,1500,3600,1700],
             labels: ['Bar 1', 'Bar 2', 'Bar 3', 'Bar 4', 'Bar 5', 'Bar 6', 'Bar 7'],
-            scale: 5,
+            scale: 1000,
             backgroundColor: 'white',
+            unit: '$',
+            gridLineStyle: 'dashed'
         })
         bars.draw()
 
