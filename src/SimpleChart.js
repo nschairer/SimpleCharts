@@ -248,9 +248,9 @@ class SimpleBarChart extends SimpleChart {
         }
 
         //Bar Styles
-        this.barHoverFontFamily = 'sans-serif'
-        this.barHoverFontSize = '24px'
-        this.barHoverFontColor = 'black'
+        this.barHoverFontFamily = props.barHoverFontFamily || 'sans-serif'
+        this.barHoverFontSize = props.barHoverFontSize || '24px'
+        this.barHoverFontColor = props.barHoverFontColor || 'black'
         this.cornerRadius = props.hasOwnProperty('cornerRadius') ? props.cornerRadius : 8;
 
         this.hover = props.hover || true;
@@ -311,8 +311,8 @@ class SimpleBarChart extends SimpleChart {
 
             //Render what fits in viewport
             if (x < this.viewport.x + this.viewport.w || x + this._BAR_WIDTH > this.viewport.x) {
-                if(this.pointer.x >= (x - this.viewport.x) && this.pointer.x <= (x - this.viewport.x) + this._BAR_WIDTH && this.pointer.y <= y && this.pointer.y >= y + barHeight) {
-                    drawLabel(this.context, this.values[i], x + (this._BAR_WIDTH / 2), y + barHeight - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
+                if(this.hover && this.pointer.x >= (x - this.viewport.x) && this.pointer.x <= (x - this.viewport.x) + this._BAR_WIDTH && this.pointer.y <= y && this.pointer.y >= y + barHeight) {
+                    drawLabel(this.context, formatNumber(this.values[i]), x + (this._BAR_WIDTH / 2), y + barHeight - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
                     this.context.shadowBlur = this.shadowSize;
                     this.context.shadowColor = this.shadowColor;
                 }

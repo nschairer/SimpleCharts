@@ -1,0 +1,3 @@
+Adjust grid when data grows
+hover labels fall outside canvas
+Rounded rectangle shows when value is 0
