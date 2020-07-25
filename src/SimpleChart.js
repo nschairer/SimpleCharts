@@ -128,6 +128,7 @@ class SimpleChart {
 
         // Style attributes
         this.backgroundColor = props.backgroundColor || 'lightcoral';
+        this.context.canvas.style.backgroundColor = this.backgroundColor;
         
         //Grid / Y-Axis Style
         this.gridLineColor = props.gridLineColor || 'black';
@@ -201,7 +202,7 @@ class SimpleBarChart extends SimpleChart {
         super(props);
 
         // Bar Attributes
-        this.fillEvenly = props.fillEvenly || true
+        this.fillEvenly = props.hasOwnProperty('fillEvenly') ? props.fillEvenly : true;
         this.barSpacing = props.barSpacing || 20;
         if (this.fillEvenly){
             this.barWidth = ((this.width - parseInt(this.gridFontSize)) - (this.barSpacing*this.values.length*2)) / this.values.length

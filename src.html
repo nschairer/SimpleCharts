@@ -7,17 +7,29 @@
 </head>
 <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center;">
     <h2>Simple Bar Chart</h2>
-    <canvas id="bar" style="background-color: white; height: 300px; width: 400px;"></canvas>
+    <canvas id="bar" style="height: 300px; width: 400px;"></canvas>
     <script src="./src/SimpleChart.js"></script>
     <script>
         const bars = new SimpleBarChart({
             id: 'bar',
             values: [11.2,28,3,39,15,36,17],
             labels: ['Bar 1', 'Bar 2', 'Bar 3', 'Bar 4', 'Bar 5', 'Bar 6', 'Bar 7'],
-            barSpacing: 50,
-            scale: 5
+            scale: 5,
+            backgroundColor: 'white',
         })
         bars.draw()
+
+        function changeDataRandomly(data) {
+            for (let i = 0; i < data.length; i++) {
+                const delta = (Math.random() < 0.5 ? -1 : 1) * Math.random() * data[i]
+                data[i] = data[i] + delta
+            }
+        }
+
+        //Update data in realtime
+        // setInterval(() => {
+        //     changeDataRandomly(bars.values)
+        // }, 500)
     </script>
 </body>
 </html>
