@@ -16,6 +16,9 @@ bars.draw()
 
 ![simpleBar](./img/simpleBar.gif)
 
+## Customizable
+![customized](./img/customized.png)
+
 # Properties
 ## Minimal:
 * <b>id</b> - Element id referring to the canvas element to draw the chart on

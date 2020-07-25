@@ -150,11 +150,14 @@ class SimpleChart {
         this.gridLineStyle = props.gridLineStyle || 'solid';//Options solid, dashed
         this.dashes = props.dashes || 50
         this.dashGap = props.dashGap || 2
+        this.yAxisLine = props.hasOwnProperty('yAxisLine') ? props.yAxisLine : false;
+
         
         //X-Axis Style -- might change this to dataStyle
         this.xAxisFontFamily = props.xAxisFontFamily || 'sans-serif';
         this.xAxisFontSize = props.xAxisFontSize || '18px';
         this.xAxisFontColor = props.xAxisFontColor || 'black';
+        this.xAxisLine = props.hasOwnProperty('xAxisLine') ? props.xAxisLine : true;
         this.labelSpace = props.labelSpace || 30;
         //End style attributes
 
@@ -254,8 +257,8 @@ class SimpleBarChart extends SimpleChart {
     drawBars = () => {
 
         // Draw Axis
-        // drawLine(this.context, 0, this._BAR_BOTTOM, 0, 0);
-        drawLine(this.context, 0, this._BAR_BOTTOM + 1, this.width, this._BAR_BOTTOM + 1)
+        this.yAxisLine ? drawLine(this.context, 0, this._BAR_BOTTOM, 0, 0) : null
+        this.xAxisLine ? drawLine(this.context, 0, this._BAR_BOTTOM + 1, this.width, this._BAR_BOTTOM + 1) : null
 
 
         // Draw Grid
