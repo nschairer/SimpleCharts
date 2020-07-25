@@ -1,4 +1,17 @@
 
+
+function roundedRect(ctx, x, y, w, h, cr, color) {
+    ctx.strokeStyle = color
+    ctx.lineJoin = "round";
+    ctx.lineWidth = cr;
+    ctx.strokeRect(x+(cr/2), y+(cr/2), w-cr, h-cr);
+    ctx.shadowSize = 0
+    ctx.shadowColor = color
+    ctx.fillRect(x+(cr/2), y+(cr/2), w-cr, h-cr);
+    ctx.lineWidth = 1
+}
+
+
 /**
  * Number formatter for grid values on y-axis
  * @param {Number} n 
@@ -229,7 +242,7 @@ class SimpleBarChart extends SimpleChart {
         this.barHoverFontFamily = 'sans-serif'
         this.barHoverFontSize = '24px'
         this.barHoverFontColor = 'black'
-
+        this.cornerRadius = props.hasOwnProperty('cornerRadius') ? props.cornerRadius : 8;
 
         this.hover = props.hover || true;
         this.colors = props.colors || null
@@ -246,7 +259,7 @@ class SimpleBarChart extends SimpleChart {
         this._MAX_ARR = Math.max(...this.values);
         this._GRID_LINES = Math.ceil( this._MAX_ARR / this.scale )
         this._MAX = this._GRID_LINES * this.scale
-        this._MAX_BAR_HEIGHT = this.height - this.topSpacing - this.labelSpace
+        this._MAX_BAR_HEIGHT = this.height - this.topSpacing - this.labelSpace - this.cornerRadius
         this._GRID_LINE_SPACE = this._MAX_BAR_HEIGHT / this._GRID_LINES
         this._BAR_BOTTOM = this.height - this.labelSpace
     }
@@ -297,7 +310,8 @@ class SimpleBarChart extends SimpleChart {
                 this.colorMap[i] = this.colorMap[i] || this.colorWheel.get()
                 this.context.beginPath()
                 this.context.fillStyle = this.colorMap[i]
-                this.context.fillRect(x - this.viewport.x, y, this._BAR_WIDTH, barHeight)
+                roundedRect(this.context, x - this.viewport.x, y, this._BAR_WIDTH, barHeight, this.cornerRadius, this.colorMap[i])
+                // this.context.fillRect(x - this.viewport.x, y, this._BAR_WIDTH, barHeight)
                 this.context.stroke()
                 this.context.shadowBlur = 0
                 drawLabel(this.context, this.labels[i] || '', x + (this._BAR_WIDTH / 2), this.height - (this.labelSpace / 4), this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')
