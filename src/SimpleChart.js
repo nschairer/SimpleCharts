@@ -173,7 +173,7 @@ class SimpleChart {
         this.dashes = props.dashes || 50
         this.dashGap = props.dashGap || 2
         this.yAxisLine = props.hasOwnProperty('yAxisLine') ? props.yAxisLine : false;
-
+        this.showYAxisLabels = props.hasOwnProperty('showYAxisLabels') ? props.showYAxisLabels : true;
         
         //X-Axis Style -- might change this to dataStyle
         this.xAxisFontFamily = props.xAxisFontFamily || 'sans-serif';
@@ -293,11 +293,11 @@ class SimpleBarChart extends SimpleChart {
                     drawLine(this.context, (dashSpace * y) + this.dashGap, lineY, dashWidth + (dashSpace * y), lineY, this.gridLineColor)
                 }
 
-            } else {
+            } else if (this.gridLineStyle === 'solid') {
                 drawLine(this.context, 0, lineY,this.width, lineY,this.gridLineColor)
             }
             let gridValue = (this._GRID_LINES - x) * this.scale;
-            drawLabel(this.context, this.unit + formatNumber(gridValue), this.gridLabelInset, lineY - parseInt(this.gridFontSize),this.gridFontSize, this.gridFontFamily, this.gridFontColor)
+            if (this.showYAxisLabels) drawLabel(this.context, this.unit + formatNumber(gridValue), this.gridLabelInset, lineY - parseInt(this.gridFontSize),this.gridFontSize, this.gridFontFamily, this.gridFontColor)
         }
 
         // Draw Bars

@@ -6,8 +6,13 @@
     <title>Document</title>
 </head>
 <body style="font-family: sans-serif; display: flex; flex-direction: column; align-items: center;">
-    <h2>Simple Bar Chart</h2>
+    <h2>Simple Bar Chart 1</h2>
     <canvas id="bar" style="height: 300px; width: 400px;"></canvas>
+    <h2>Simple Bar Chart 2</h2>
+    <div style="width: 600px; height: 400px; background-color: #2f3e4a; display: flex; justify-content: center; align-items: center; flex-direction: column;">
+        <h5 style="color: #fafafa; width: 500px; text-align: left;">Weekly Activity</h5>
+        <canvas id="bar2" style="border-radius: 8px;height: 300px; width: 500px;"></canvas>
+    </div>
     <script src="./src/SimpleChart.js"></script>
     <script>
         const bars = new SimpleBarChart({
@@ -26,10 +31,27 @@
             gridFontColor: 'gray',
             dashes: 40,
             cornerRadius: 8,
-            labelSpace: 40,
+            labelSpace: 60,
             barHoverFontColor: 'gray'
         })
         bars.draw()
+
+        const bar2 = new SimpleBarChart({
+            id: 'bar2',
+            values: [0, 10, 40, 30, 15, 5, 20, 43, 45, 8, 18, 0],
+            labels: ['12pm', '1pm', '2pm', '3pm', '4pm', '5pm', '6pm', '7pm' ,'8pm', '9pm', '11pm', '12am'],
+            xAxisLine: false,
+            yAxisLine: false,
+            backgroundColor: '#34414c',
+            gridLineStyle: 'none',
+            barSpacing: 40,
+            showYAxisLabels: false,
+            colors: ['#fbcc6e','#ec4649'],
+            xAxisFontColor: '#69747b',
+            labelSpace: 40
+        })
+
+        bar2.draw()
 
         function changeDataRandomly(data) {
             for (let i = 0; i < data.length; i++) {

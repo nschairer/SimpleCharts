@@ -17,6 +17,9 @@ bars.draw()
 ![customized](./img/customized.png)
 <br>
 
+![Customized2](./img/Customized2.png)
+
+# Flexible Scale and Bar Size
 ![simpleBar](./img/simpleBar.gif)
 
 
