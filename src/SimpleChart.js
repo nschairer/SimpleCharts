@@ -17,6 +17,7 @@ function roundedRect(ctx, x, y, w, h, cr, color) {
     ctx.strokeRect(x+(cr/2), y+(cr/2), w-cr, h-cr);
     ctx.shadowSize = 0
     ctx.shadowColor = color
+    ctx.fillStyle = color
     ctx.fillRect(x+(cr/2), y+(cr/2), w-cr, h-cr);
     ctx.lineWidth = 1
 }
@@ -167,7 +168,7 @@ class SimpleChart {
         this.gridFontFamily = props.gridFontFamily || 'sans-serif';
         this.gridFontSize = props.gridFontSize || '18px';
         this.gridFontColor = props.gridFontColor || 'black';
-        this.gridLabelInset = props.gridLabelInset || 2;
+        this.gridLabelInset = props.gridLabelInset || 4;
         this.showZero = props.showZero || false;
         this.unit = props.unit || '';
         this.gridLineStyle = props.gridLineStyle || 'solid';//Options solid, dashed
@@ -242,11 +243,7 @@ class SimpleBarChart extends SimpleChart {
         // Bar Attributes
         this.fillEvenly = props.hasOwnProperty('fillEvenly') ? props.fillEvenly : true;
         this.barSpacing = props.barSpacing || 20;
-        if (this.fillEvenly){
-            this.barWidth = ((this.width - parseInt(this.gridFontSize)) - (this.barSpacing*this.values.length*2)) / this.values.length
-        } else {
-            this.barWidth = props.barWidth || 20;
-        }
+        this.barWidth = props.barWidth || 30;
 
         //Bar Styles
         this.barHoverFontFamily = props.barHoverFontFamily || 'sans-serif'
@@ -264,8 +261,7 @@ class SimpleBarChart extends SimpleChart {
         this.scale = props.scale || 5;
 
         //Calculations
-        this._LABEL_INSET = parseInt(this.gridFontSize)
-        this._BAR_WIDTH = this.barWidth//(this.width / this.barWidth)
+        this._LABEL_INSET = parseInt(this.gridFontSize) + 8
         this._MAX_ARR = Math.max(...this.values);
         this._GRID_LINES = Math.ceil( this._MAX_ARR / this.scale )
         this._MAX = this._GRID_LINES * this.scale
@@ -304,31 +300,44 @@ class SimpleBarChart extends SimpleChart {
     }
 
     /**
-     * Method to draw bars
+     * Method to draw bars evenly across chart
+     * 
+     * Calculations if fillEvenly:
+     * * N = (Width of chart - (yAxis label padding left + yAxis label font size)) / # of bars
+     * * xStart = (n - 1) * N + (0.5  * spacing )
+     * * Bar Width = Width - (yAxis label padding left + yAxis label font size) - ( spacing * # of bars) / # of bars
+     * if !fillEvenly:
+     * * N = this.barWidth + this.barSpacing
+     * * barWidth = this.barWidth
      */
     drawBars = () => {
-        let maxX = 0;
-        for(let i = 0; i < this.values.length; i++) {
-            let x =(i * this._BAR_WIDTH) + (i * (this.barSpacing) * 2) + this.barSpacing + this._LABEL_INSET;
-            let y = this._BAR_BOTTOM;
-            let barHeight = ( - this.values[i] / this._MAX ) * this._MAX_BAR_HEIGHT;
-            if ( x + this._BAR_WIDTH > maxX) maxX = x + this._BAR_WIDTH;
 
-            //Render what fits in viewport
-            if (x < this.viewport.x + this.viewport.w || x + this._BAR_WIDTH > this.viewport.x) {
-                if(this.hover && this.pointer.x >= (x - this.viewport.x) && this.pointer.x <= (x - this.viewport.x) + this._BAR_WIDTH && this.pointer.y <= y && this.pointer.y >= y + barHeight) {
-                    drawLabel(this.context, formatNumber(this.values[i]), x + (this._BAR_WIDTH / 2), y + barHeight - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
+        const yAxisOffset = (this.gridLabelInset + this._LABEL_INSET)
+        const N = this.fillEvenly ? (this.width - yAxisOffset) / this.values.length : this.barWidth + this.barSpacing;
+        const barWidth = this.fillEvenly ? (this.width - yAxisOffset - (this.barSpacing * this.values.length)) / this.values.length : this.barWidth;
+        
+        for( let i = 0; i < this.values.length; i++ ) {
+            const xStart = (N * i) + (0.5 * this.barSpacing) + yAxisOffset
+            const xEnd = (xStart + barWidth)
+            const yEnd = ( - this.values[i] / this._MAX) * this._MAX_BAR_HEIGHT;
+            const yStart = this._BAR_BOTTOM;
+            
+            //If in viewport then render
+            if ( xStart < this.viewport.x + this.viewport.w || xEnd > this.viewport.x) {
+                if (this.hover && this.pointer.x >= (xStart - this.viewport.x) && this.pointer.x <= (xStart - this.viewport.x) + barWidth && this.pointer.y <= yStart && this.pointer.y >= yStart + yEnd) {
+                    drawLabel(this.context, formatNumber(this.values[i]), xStart + (barWidth / 2), yStart + yEnd - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
                     this.context.shadowBlur = this.shadowSize;
                     this.context.shadowColor = this.shadowColor;
                 }
-                this.colorMap[i] = this.colorMap[i] || this.colorWheel.get()
-                this.context.beginPath()
-                this.context.fillStyle = this.colorMap[i]
-                roundedRect(this.context, x - this.viewport.x, y, this._BAR_WIDTH, barHeight, this.cornerRadius, this.colorMap[i])
-                // this.context.fillRect(x - this.viewport.x, y, this._BAR_WIDTH, barHeight)
-                this.context.stroke()
+
+                //Update color map on first run
+                this.colorMap[i] = this.colorMap[i] || this.colorWheel.get();
+                this.context.beginPath();
+                roundedRect(this.context, xStart, yStart, barWidth, yEnd, this.cornerRadius, this.colorMap[i])
+
                 this.context.shadowBlur = 0
-                drawLabel(this.context, this.labels[i] || '', x + (this._BAR_WIDTH / 2), this.height - (this.labelSpace / 4), this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')
+                //Draw labels
+                drawLabel(this.context, this.labels[i] || '', xStart + ( barWidth / 2), this.height - (this.labelSpace / 4), this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')
             }
         }
     }
