@@ -306,6 +306,7 @@ class SimpleBarChart extends SimpleChart {
      * * N = (Width of chart - (yAxis label padding left + yAxis label font size)) / # of bars
      * * xStart = (n - 1) * N + (0.5  * spacing )
      * * Bar Width = Width - (yAxis label padding left + yAxis label font size) - ( spacing * # of bars) / # of bars
+     * 
      * if !fillEvenly:
      * * N = this.barWidth + this.barSpacing
      * * barWidth = this.barWidth
