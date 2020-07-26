@@ -34,7 +34,15 @@
             labelSpace: 60,
             barHoverFontColor: 'gray'
         })
+
+        //Listener for hover interaction
+        bars.addEventListener('hover', e => {
+            console.log(e.detail)
+        })
+
         bars.draw()
+
+        
 
         const bar2 = new SimpleBarChart({
             id: 'bar2',
@@ -48,7 +56,8 @@
             showYAxisLabels: false,
             colors: ['#fbcc6e','#ec4649'],
             xAxisFontColor: '#69747b',
-            labelSpace: 40
+            labelSpace: 40,
+            barHoverFontColor: '#69747b'
         })
 
         bar2.draw()

@@ -231,6 +231,20 @@ class SimpleChart {
         requestAnimationFrame(() => this.mainLoop(fn))
     }
 
+    /**
+     * Method for all subclasses to emit an event upon data point interation
+     * @param {Object} details object containing details about the data point
+     */
+    dataPointEvent(eventName, details) {
+        this.context.canvas.dispatchEvent(new CustomEvent(eventName, {detail: details}))
+    }
+
+    /**
+     * Method to add listener for custom events
+     */
+    addEventListener(eventName, method) {
+        this.context.canvas.addEventListener(eventName, method)
+    }
 }
 
 /**
@@ -329,6 +343,12 @@ class SimpleBarChart extends SimpleChart {
                     drawLabel(this.context, formatNumber(this.values[i]), xStart + (barWidth / 2), yStart + yEnd - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
                     this.context.shadowBlur = this.shadowSize;
                     this.context.shadowColor = this.shadowColor;
+                    this.dataPointEvent('hover',{
+                        index: i,
+                        value: this.values[i],
+                        action: 'hover',
+                        timestamp: Date.now()
+                    })
                 }
 
                 //Update color map on first run

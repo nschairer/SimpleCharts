@@ -1,2 +1,3 @@
-Adjust grid when data grows
+Adjust grid when data grows - just move height calculations thats all
 hover labels fall outside canvas
+Add event emitter for chart interactions so users can create their own interaction handlers
