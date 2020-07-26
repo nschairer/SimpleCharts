@@ -10,6 +10,7 @@
  * @param {String} color valid CSS color
  */
 function roundedRect(ctx, x, y, w, h, cr, color) {
+    if (h === 0) return;
     ctx.strokeStyle = color
     ctx.lineJoin = "round";
     ctx.lineWidth = cr;
@@ -274,16 +275,17 @@ class SimpleBarChart extends SimpleChart {
     }
 
     /**
-     * Render method to draw bar chart
+     * Method to draw axis
      */
-    drawBars = () => {
-
-        // Draw Axis
+    drawAxis = () => {
         this.yAxisLine ? drawLine(this.context, 0, this._BAR_BOTTOM, 0, 0) : null
         this.xAxisLine ? drawLine(this.context, 0, this._BAR_BOTTOM + 1, this.width, this._BAR_BOTTOM + 1) : null
+    }
 
-
-        // Draw Grid
+    /**
+     * Method to draw grid lines
+     */
+    drawGrid = () => {
         for(let x = 0; x < this._GRID_LINES + this.showZero; x ++) {
             let lineY = ((x * this.scale) / this._MAX ) * this._MAX_BAR_HEIGHT + this.topSpacing
             if(this.gridLineStyle === 'dashed') {
@@ -299,9 +301,12 @@ class SimpleBarChart extends SimpleChart {
             let gridValue = (this._GRID_LINES - x) * this.scale;
             if (this.showYAxisLabels) drawLabel(this.context, this.unit + formatNumber(gridValue), this.gridLabelInset, lineY - parseInt(this.gridFontSize),this.gridFontSize, this.gridFontFamily, this.gridFontColor)
         }
+    }
 
-        // Draw Bars
-
+    /**
+     * Method to draw bars
+     */
+    drawBars = () => {
         let maxX = 0;
         for(let i = 0; i < this.values.length; i++) {
             let x =(i * this._BAR_WIDTH) + (i * (this.barSpacing) * 2) + this.barSpacing + this._LABEL_INSET;
@@ -329,10 +334,19 @@ class SimpleBarChart extends SimpleChart {
     }
 
     /**
+     * Render method to consolidate subroutines
+     */
+    render = () => {
+        this.drawAxis();
+        this.drawGrid();
+        this.drawBars();
+    }
+
+    /**
      * All subclasses must have a draw method to be called upon to start their main renders
      */
     draw() {
-        this.mainLoop(this.drawBars)
+        this.mainLoop(this.render)
     }
 }
 
