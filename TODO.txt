@@ -1,3 +1,19 @@
-Adjust grid when data grows - just move height calculations thats all
-hover labels fall outside canvas
-Add event emitter for chart interactions so users can create their own interaction handlers
+
+Todo list in order of priority
+===============================
+1. Titles                     |
+2. X/Y labels                 |
+3. Legend                     |  
+4. Orientation                |
+5. Autoscaling                |
+6. Scrolling                  |
+7. Multiple Bars per label    |
+8. Composite Bars             |
+9. Click events               |
+===============================
+
+Things to think about
+=================================
+1. More reactive variable system so we don't need to update certain things manually when
+adding new features - everything graphically should be based off of x-axis/y-axis location
+so maybe just manage those two and update them with features like titles, legends/labels etc.

@@ -274,7 +274,12 @@ class SimpleBarChart extends SimpleChart {
         this.shadowSize = props.shadowSize || 4
         this.scale = props.scale || 5;
 
-        //Calculations
+    }
+
+    /**
+     * Method to update constant variables
+     */
+    setConstants() {
         this._LABEL_INSET = parseInt(this.gridFontSize) + 8
         this._MAX_ARR = Math.max(...this.values);
         this._GRID_LINES = Math.ceil( this._MAX_ARR / this.scale )
@@ -296,6 +301,7 @@ class SimpleBarChart extends SimpleChart {
      * Method to draw grid lines
      */
     drawGrid = () => {
+        this.setConstants();
         for(let x = 0; x < this._GRID_LINES + this.showZero; x ++) {
             let lineY = ((x * this.scale) / this._MAX ) * this._MAX_BAR_HEIGHT + this.topSpacing
             if(this.gridLineStyle === 'dashed') {
