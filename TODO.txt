@@ -17,3 +17,5 @@ Things to think about
 1. More reactive variable system so we don't need to update certain things manually when
 adding new features - everything graphically should be based off of x-axis/y-axis location
 so maybe just manage those two and update them with features like titles, legends/labels etc.
+
+2. Render times - how costly will it be when we process large quantities of data
