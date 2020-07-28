@@ -10,6 +10,7 @@ Todo list in order of priority
 7. Multiple Bars per label    |
 8. Composite Bars             |
 9. Click events               |
+10. Prop renaming/docs        |
 ===============================
 
 Things to think about
