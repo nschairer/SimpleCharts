@@ -13,6 +13,8 @@
         <h5 style="color: #fafafa; width: 500px; text-align: left;">Daily Activity</h5>
         <canvas id="bar2" style="border-radius: 8px;height: 300px; width: 500px;"></canvas>
     </div>
+    <canvas id="bar3" style="width: 300px; height: 300px;">
+    </canvas>
     <script src="./src/SimpleChart.js"></script>
     <script>
         const bars = new SimpleBarChart({
@@ -68,6 +70,13 @@
                 data[i] = data[i] + delta
             }
         }
+
+        const bar3 = new DynamicBar({
+            id: 'bar3',
+            values: [1,2,3,4,5,6,5.5],
+            gridLineStyle: 'dashed'
+        })
+        bar3.draw()
 
         //Update data in realtime
         // setInterval(() => {

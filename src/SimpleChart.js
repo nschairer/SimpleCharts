@@ -301,7 +301,6 @@ class SimpleBarChart extends SimpleChart {
      * Method to draw grid lines
      */
     drawGrid = () => {
-        this.setConstants();
         for(let x = 0; x < this._GRID_LINES + this.showZero; x ++) {
             let lineY = ((x * this.scale) / this._MAX ) * this._MAX_BAR_HEIGHT + this.topSpacing
             if(this.gridLineStyle === 'dashed') {
@@ -373,6 +372,7 @@ class SimpleBarChart extends SimpleChart {
      * Render method to consolidate subroutines
      */
     render = () => {
+        this.setConstants();
         this.drawAxis();
         this.drawGrid();
         this.drawBars();
@@ -386,5 +386,95 @@ class SimpleBarChart extends SimpleChart {
     }
 }
 
+
+class DynamicBar extends SimpleChart {
+    constructor(props) {
+        super(props);
+        this.cornerRadius = props.cornerRadius || 8;
+        this.values = props.values || [];
+        this.labels = props.labels || [];
+        this.drawX = props.hasOwnProperty('drawX') ? props.drawX : true;
+        this.drawY = props.hasOwnProperty('drawY') ? props.drawY : true;
+        this.scale = props.scale || 2;
+        this.barSpacing = props.barSpacing || 20;
+    }
+
+    setConstants(left, top, right, bottom) {
+        this.xStart = left;
+        this.yStart = top;
+        this.xEnd = this.width - right;
+        this.yEnd = this.height - bottom;
+        this.chartWidth = this.width - left - right;
+        this.chartHeight = this.height - top - bottom;
+        //Have to think about viewport calculation
+        // this.viewport.x = this.xStart;
+        // this.viewport.y = this.yStart;
+        // this.viewport.w = this.chartWidth;
+        // this.viewport.h = this.chartHeight;
+    }
+
+    drawAxis = () => {
+        this.drawX ? drawLine(this.context, this.xStart, this.yEnd, this.xEnd, this.yEnd) : null;
+        this.drawY ? drawLine(this.context, this.xStart, this.yStart, this.xStart, this.yEnd) : null;
+    }
+
+    drawGrid = () => {
+        const maxValue = Math.max(...this.values);//some sort of did change so we don't recalc this
+        const gridlines = Math.ceil( maxValue / this.scale );
+        this.maxGridLine = gridlines * this.scale;
+
+        for( let x = 0; x < gridlines; x++) {
+            let lineY = this.yStart + (((x * this.scale) / this.maxGridLine) * this.chartHeight)
+            switch (this.gridLineStyle) {
+                case 'dashed':
+                    const dashWidth = (this.chartWidth - (2 * this.dashGap * this.dashes)) / this.dashes;
+                    const dashSpace = this.chartWidth / this.dashes;
+                    for(let y = 0; y <= this.dashes; y++) drawLine(this.context, (dashSpace * y) + this.dashGap + this.xStart, lineY, dashWidth + (dashSpace * y) + this.xStart, lineY, this.gridLineColor);
+                    break;
+                default:
+                    drawLine(this.context, this.xStart, lineY, this.xEnd, lineY);
+                    break;
+            }
+            let gridValue = (gridlines - x) * this.scale;
+            if (this.showYAxisLabels) {
+                drawLabel(
+                    this.context, 
+                    this.unit + formatNumber(gridValue), 
+                    this.xStart - 20, 
+                    lineY + parseInt(this.gridFontSize)/2 - 4.5,
+                    this.gridFontSize,
+                    this.gridFontFamily,
+                    this.gridFontColor,
+                    'center'
+                    )
+            }
+        }
+    }
+
+    drawBars = () => {
+        const N = this.chartWidth / this.values.length;
+        const barWidth = (this.chartWidth - (this.barSpacing * this.values.length)) / this.values.length;
+        for ( let i = 0; i < this.values.length; i++ ) {
+            const barXStart = (N * i) + (0.5 * this.barSpacing) + this.xStart
+            const barYStart = this.yEnd;
+            const barYEnd = (- this.values[i] / this.maxGridLine) * this.chartHeight;
+            //TODO viewport calculations
+            roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, 0, 'black');
+        }
+    }
+
+    render = () => {
+        this.setConstants(75,75,75,75);
+        this.drawAxis();
+        this.drawGrid();
+        this.drawBars();
+    }
+    
+    draw() {
+        this.mainLoop(this.render)
+        console.log(this.chartHeight,this.chartWidth,this.width,this.height)
+        console.log(this.xStart,this.xEnd,this.yStart,this.yEnd)
+    }
+}
 
 
