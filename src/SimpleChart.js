@@ -410,6 +410,13 @@ class DynamicBar extends SimpleChart {
         this.colorMap = {}
     }
 
+    /**
+     * Method to set chart constants
+     * @param {Number} left 
+     * @param {Number} top 
+     * @param {Number} right 
+     * @param {Number} bottom 
+     */
     setConstants(left, top, right, bottom) {
         this.xStart = left;
         this.yStart = top;
@@ -417,24 +424,25 @@ class DynamicBar extends SimpleChart {
         this.yEnd = this.height - bottom;
         this.chartWidth = this.width - left - right;
         this.chartHeight = this.height - top - bottom;
-        //Have to think about viewport calculation
-        // this.viewport.x = this.xStart;
-        // this.viewport.y = this.yStart;
-        // this.viewport.w = this.chartWidth;
-        // this.viewport.h = this.chartHeight;
     }
 
+    /**
+     * Helper method to draw axis
+     */
     drawAxis = () => {
         this.drawX ? drawLine(this.context, this.xStart, this.yEnd, this.xEnd, this.yEnd) : null;
         this.drawY ? drawLine(this.context, this.xStart, this.yStart, this.xStart, this.yEnd) : null;
     }
 
+    /**
+     * Helper method to draw grid
+     */
     drawGrid = () => {
         const maxValue = Math.max(...this.values);//some sort of did change so we don't recalc this
         const gridlines = Math.ceil( maxValue / this.scale );
         this.maxGridLine = gridlines * this.scale;
 
-        for( let x = 0; x < gridlines; x++) {
+        for( let x = 0; x < gridlines + this.showZero; x++) {
             let lineY = this.yStart + (((x * this.scale) / this.maxGridLine) * this.chartHeight)
             switch (this.gridLineStyle) {
                 case 'dashed':
@@ -462,13 +470,16 @@ class DynamicBar extends SimpleChart {
         }
     }
 
+    /**
+     * Helper method to draw bars
+     */
     drawBars = () => {
         const N = this.chartWidth / this.values.length;
         const barWidth = (this.chartWidth - (this.barSpacing * this.values.length)) / this.values.length;
         for ( let i = 0; i < this.values.length; i++ ) {
             const barXStart = (N * i) + (0.5 * this.barSpacing) + this.xStart
             const barXEnd = barXStart + barWidth
-            const barYStart = this.yEnd;
+            const barYStart = this.yEnd - 1;
             const barYEnd = (- this.values[i] / this.maxGridLine) * this.chartHeight;
             //TODO viewport calculations
             if(barXStart < this.viewport.x + this.viewport.w && barXEnd > this.viewport.x) {
@@ -487,11 +498,15 @@ class DynamicBar extends SimpleChart {
                 this.context.beginPath();
                 roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, 0, this.colorMap[i]);
                 this.context.shadowBlur = 0;
-                //TODO draw labels
+                //TODO draw labels - dynamic padding from axis
+                drawLabel(this.context, this.labels[i] || '', barXStart + (barWidth / 2), this.yEnd + 20, this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')
             }
         }
     }
 
+    /**
+     * Render function to render content
+     */
     render = () => {
         this.setConstants(75,75,75,75);
         this.drawAxis();
@@ -499,10 +514,11 @@ class DynamicBar extends SimpleChart {
         this.drawBars();
     }
     
+    /**
+     * Draw function to run main loop
+     */
     draw() {
         this.mainLoop(this.render)
-        console.log(this.chartHeight,this.chartWidth,this.width,this.height)
-        console.log(this.xStart,this.xEnd,this.yStart,this.yEnd)
     }
 }
 

@@ -13,7 +13,7 @@
         <h5 style="color: #fafafa; width: 500px; text-align: left;">Daily Activity</h5>
         <canvas id="bar2" style="border-radius: 8px;height: 300px; width: 500px;"></canvas>
     </div>
-    <canvas id="bar3" style="width: 300px; height: 300px;">
+    <canvas id="bar3" style="width: 500px; height: 500px;">
     </canvas>
     <script src="./src/SimpleChart.js"></script>
     <script>
@@ -74,7 +74,11 @@
         const bar3 = new DynamicBar({
             id: 'bar3',
             values: [1,2,3,4,5,6,5.5],
-            gridLineStyle: 'dashed'
+            labels: ['M','T','W','TH','F','SAT','SUN'],
+            gridLineStyle: 'dashed',
+            unit: '$',
+            backgroundColor: 'white',
+            // showZero:true
         })
         bar3.draw()
 
