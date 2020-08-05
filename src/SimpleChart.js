@@ -397,6 +397,17 @@ class DynamicBar extends SimpleChart {
         this.drawY = props.hasOwnProperty('drawY') ? props.drawY : true;
         this.scale = props.scale || 2;
         this.barSpacing = props.barSpacing || 20;
+        this.hover = props.hover || true;
+
+        this.shadowColor = props.shadowColor || 'black';
+        this.shadowSize = props.shadowSize || 4
+        this.barHoverFontFamily = props.barHoverFontFamily || 'sans-serif'
+        this.barHoverFontSize = props.barHoverFontSize || '24px'
+        this.barHoverFontColor = props.barHoverFontColor || 'black'
+
+        this.colors = props.colors || null
+        this.colorWheel = new ColorWheel(this.colors)
+        this.colorMap = {}
     }
 
     setConstants(left, top, right, bottom) {
@@ -456,10 +467,28 @@ class DynamicBar extends SimpleChart {
         const barWidth = (this.chartWidth - (this.barSpacing * this.values.length)) / this.values.length;
         for ( let i = 0; i < this.values.length; i++ ) {
             const barXStart = (N * i) + (0.5 * this.barSpacing) + this.xStart
+            const barXEnd = barXStart + barWidth
             const barYStart = this.yEnd;
             const barYEnd = (- this.values[i] / this.maxGridLine) * this.chartHeight;
             //TODO viewport calculations
-            roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, 0, 'black');
+            if(barXStart < this.viewport.x + this.viewport.w && barXEnd > this.viewport.x) {
+                if (this.hover && this.pointer.x >= barXStart && this.pointer.x <= barXEnd && this.pointer.y <= barYStart && this.pointer.y >= barYStart + barYEnd){
+                    drawLabel(this.context, formatNumber(this.values[i]), barXStart + (barWidth / 2), barYStart + barYEnd - 18, this.barHoverFontSize, this.barHoverFontFamily, this.barHoverFontColor, 'center')
+                    this.context.shadowBlur = this.shadowSize;
+                    this.context.shadowColor = this.shadowColor;
+                    this.dataPointEvent('hover', {
+                        index:i,
+                        value: this.values[i],
+                        action: 'hover',
+                        timestamp: Date.now()
+                    })
+                }
+                this.colorMap[i] = this.colorMap[i] || this.colorWheel.get();
+                this.context.beginPath();
+                roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, 0, this.colorMap[i]);
+                this.context.shadowBlur = 0;
+                //TODO draw labels
+            }
         }
     }
 
