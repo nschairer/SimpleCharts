@@ -479,8 +479,8 @@ class DynamicBar extends SimpleChart {
         for ( let i = 0; i < this.values.length; i++ ) {
             const barXStart = (N * i) + (0.5 * this.barSpacing) + this.xStart
             const barXEnd = barXStart + barWidth
-            const barYStart = this.yEnd - 1;
-            const barYEnd = (- this.values[i] / this.maxGridLine) * this.chartHeight;
+            const barYStart = this.yEnd - 1 - this.cornerRadius;
+            const barYEnd = (- this.values[i] / this.maxGridLine) * (this.chartHeight - this.cornerRadius);
             //TODO viewport calculations
             if(barXStart < this.viewport.x + this.viewport.w && barXEnd > this.viewport.x) {
                 if (this.hover && this.pointer.x >= barXStart && this.pointer.x <= barXEnd && this.pointer.y <= barYStart && this.pointer.y >= barYStart + barYEnd){
@@ -496,7 +496,7 @@ class DynamicBar extends SimpleChart {
                 }
                 this.colorMap[i] = this.colorMap[i] || this.colorWheel.get();
                 this.context.beginPath();
-                roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, 0, this.colorMap[i]);
+                roundedRect(this.context, barXStart, barYStart, barWidth, barYEnd, this.cornerRadius, this.colorMap[i]);
                 this.context.shadowBlur = 0;
                 //TODO draw labels - dynamic padding from axis
                 drawLabel(this.context, this.labels[i] || '', barXStart + (barWidth / 2), this.yEnd + 20, this.xAxisFontSize, this.xAxisFontFamily, this.xAxisFontColor, 'center')

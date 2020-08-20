@@ -21,7 +21,7 @@
             id: 'bar',
             values: [1100.2,2800,300,3900,1500,3600,1700],
             labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
-            scale: 1000,
+            scale: 500,
             backgroundColor: 'white',
             unit: '$',
             gridLineStyle: 'dashed',
@@ -73,11 +73,22 @@
 
         const bar3 = new DynamicBar({
             id: 'bar3',
-            values: [1,2,3,4,5,6,5.5],
-            labels: ['M','T','W','TH','F','SAT','SUN'],
-            gridLineStyle: 'dashed',
-            unit: '$',
+            values: [1100.2,2800,300,3900,1500,3600,1700],
+            labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+            scale: 500,
             backgroundColor: 'white',
+            unit: '$',
+            gridLineStyle: 'dashed',
+            colors: ['#1baf74', '#fda145'],
+            barSpacing: 30,
+            xAxisFontColor: 'gray',
+            xAxisLine: false,
+            gridLineColor: 'gray',
+            gridFontColor: 'gray',
+            dashes: 40,
+            cornerRadius: 8,
+            labelSpace: 60,
+            barHoverFontColor: 'gray'
             // showZero:true
         })
         bar3.draw()
